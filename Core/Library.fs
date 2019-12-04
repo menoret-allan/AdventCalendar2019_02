@@ -2,8 +2,8 @@
 
 type Instruction = 
     | End
-    | Add of (int * int * int * int)
-    | Mult of (int * int * int * int)
+    | Add of (int * int)
+    | Mult of (int * int)
 
 exception GrandMa of string
 
@@ -18,8 +18,8 @@ module Computer =
     let readInstruction (instructions: int []) (pos: int) =
         match instructions.[pos] with
             | 99 -> End
-            | 1 -> Add(instructions.[instructions.[pos + 1]], instructions.[instructions.[pos + 2]], instructions.[pos + 3], 4)
-            | 2 -> Mult(instructions.[instructions.[pos + 1]], instructions.[instructions.[pos + 2]], instructions.[pos + 3], 4)
+            | 1 -> Add(instructions.[instructions.[pos + 1]] + instructions.[instructions.[pos + 2]], instructions.[pos + 3])
+            | 2 -> Mult(instructions.[instructions.[pos + 1]] * instructions.[instructions.[pos + 2]], instructions.[pos + 3])
             | _ -> raise (GrandMa("time to fix that"))
 
     let update instructions pos value =
@@ -29,8 +29,8 @@ module Computer =
     let rec loop (instructions: int []) (pos: int) =
         match readInstruction instructions pos with
         | End -> instructions
-        | Add (x, y, where, move) -> loop (update instructions where (x+y)) (pos+move)
-        | Mult (x, y, where, move) -> loop (update instructions where (x*y)) (pos+move)
+        | Add (newValue, position)
+        | Mult (newValue, position) -> loop (update instructions position newValue) (pos+4)
     
     let realCompute (instructions: seq<int>) =
         let array =  instructions |> Seq.toArray
