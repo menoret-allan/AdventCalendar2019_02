@@ -26,15 +26,16 @@ module Computer =
         Array.set instructions pos value
         instructions
 
-    let rec loop (instructions: int []) (pos: int) =
-        match readInstruction instructions pos with
-        | Some End -> instructions
-        | Some (Overide (newValue, position)) -> loop (update instructions position newValue) (pos+4)
-        | None -> [|-1|]
+    let interprete (instructions: int []) =
+        let rec loop (instructions: int []) (pos: int) =
+            match readInstruction instructions pos with
+            | Some End -> instructions
+            | Some (Overide (newValue, position)) -> loop (update instructions position newValue) (pos+4)
+            | None -> [|-1|]
+        loop instructions 0
     
     let realCompute (instructions: seq<int>) =
-        let array =  instructions |> Seq.toArray
-        (loop array 0) |> Array.toSeq
+        instructions |> Seq.toArray |> interprete |> Array.toSeq
 
     let compute (instructions: string) =
         instructions |> translate |> realCompute |> translateBack
@@ -45,23 +46,13 @@ module Computer =
         Array.set result 2 verb
         result
 
+    let findSpecificResult gen (pair: (int * int)) =
+           match interprete (gen pair) |> Array.item 0 with
+           | 19690720 -> Some pair
+           | _ -> None
+
     let findSet (instructions: string) =
-        let values = instructions |> translate |> Seq.toArray
+        let genInstruction = instructions |> translate |> Seq.toArray |> generateInstruction |> findSpecificResult
         let pairs = seq {for noun in 0..100 do yield! seq {for verb in 0..100 do (noun , verb) } }
-        let findSpecificResult (pair: (int * int)) =
-               match loop (generateInstruction values pair) 0 |> Array.item 0 with
-               | 19690720 -> Some pair
-               | _ -> None
-        pairs |> Seq.choose(findSpecificResult) |> Seq.exactlyOne 
-
-
-
-
-
-
-
-
-
-
-
+        pairs |> Seq.choose(genInstruction) |> Seq.exactlyOne 
 
