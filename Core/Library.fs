@@ -35,22 +35,22 @@ module Computer =
             | None -> [|-1|]
         loop instructions 0
     
-    let compute (instructions: string) =
-        instructions |> translate |> interprete |> translateBack
+    let compute (input: string) =
+        input |> translate |> interprete |> translateBack
 
-    let generateInstruction instructions (noun, verb) =
-        let result=Array.copy instructions
+    let applyNewValueForInstruction instructions (noun, verb) =
+        let result = Array.copy instructions
         Array.set result 1 noun
         Array.set result 2 verb
         result
 
-    let findSpecificResult gen (pair: (int * int)) =
-           match interprete (gen pair) |> Array.item 0 with
+    let findSpecificResult genInstruction (pair: (int * int)) =
+           match interprete (genInstruction pair) |> Array.item 0 with
            | 19690720 -> Some pair
            | _ -> None
 
-    let findSet (instructions: string) =
-        let genInstruction = instructions |> translate |> generateInstruction |> findSpecificResult
+    let findSet (input: string) =
+        let genInstruction = input |> translate |> applyNewValueForInstruction |> findSpecificResult
         let pairs = seq {for noun in 0..100 do yield! seq {for verb in 0..100 do (noun , verb) } }
         pairs |> Seq.choose(genInstruction) |> Seq.exactlyOne 
 
