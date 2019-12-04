@@ -6,8 +6,6 @@ type Instruction =
     | Add of (int * int)
     | Mult of (int * int)
 
-exception GrandMa of string
-
 module Computer =
     let translate (instructions: string) =
         instructions.Split [|','|]
