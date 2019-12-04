@@ -8,6 +8,7 @@ module Computer =
     let translate (instructions: string) =
         instructions.Split [|','|]
         |> Seq.map(int)
+        |> Seq.toArray
     
     let translateBack (instructions: seq<int>) =
         instructions |> Seq.map(string) |> String.concat ","
@@ -34,11 +35,8 @@ module Computer =
             | None -> [|-1|]
         loop instructions 0
     
-    let realCompute (instructions: seq<int>) =
-        instructions |> Seq.toArray |> interprete |> Array.toSeq
-
     let compute (instructions: string) =
-        instructions |> translate |> realCompute |> translateBack
+        instructions |> translate |> interprete |> translateBack
 
     let generateInstruction instructions (noun, verb) =
         let result=Array.copy instructions
@@ -52,7 +50,7 @@ module Computer =
            | _ -> None
 
     let findSet (instructions: string) =
-        let genInstruction = instructions |> translate |> Seq.toArray |> generateInstruction |> findSpecificResult
+        let genInstruction = instructions |> translate |> generateInstruction |> findSpecificResult
         let pairs = seq {for noun in 0..100 do yield! seq {for verb in 0..100 do (noun , verb) } }
         pairs |> Seq.choose(genInstruction) |> Seq.exactlyOne 
 
